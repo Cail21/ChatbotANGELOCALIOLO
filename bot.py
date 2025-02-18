@@ -27,6 +27,8 @@ def read_pdf(file):
 
 import codecs
 
+import codecs
+
 def read_txt(file):
     # Leggi i byte dal file
     raw_bytes = file.getvalue()
@@ -34,17 +36,20 @@ def read_txt(file):
         s = raw_bytes.decode("utf-8")
     except UnicodeDecodeError:
         s = raw_bytes.decode("latin1")
-    # Se nella stringa sono presenti sequenze di escape, prova a correggerle:
+    # Se nella stringa sono presenti sequenze di escape, prova a correggerle
     if "\\x" in s:
         try:
-            # Converte la stringa in bytes (con codifica latin1) e poi decodifica in utf-8
+            # Primo passaggio: decodifica delle sequenze di escape
+            s = codecs.decode(s, "unicode_escape")
+            # Secondo passaggio: corregge l'encoding (da latin1 a utf-8)
             s = s.encode("latin1").decode("utf-8")
         except Exception as e:
-            # Se qualcosa va storto, mantieni il testo originale
+            # In caso di errore, lascia il testo così com'è
             pass
     # Sostituisci newline e return, se necessario
     s = s.replace("\n", " \\n ").replace("\r", " \\r ")
     return s
+
 
 
 
