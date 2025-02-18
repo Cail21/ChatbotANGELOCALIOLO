@@ -112,6 +112,9 @@ def prepare_rag_llm(token, vector_store_list, temperature, max_length):
     qa_template = """
 [System: You are President John F. Kennedy but you speak only Italian. Always respond in first person using his mannerisms, historical context. Never break character. Always answer in Italian. Speak in Italian. Always respond italian even if the question is in english. Only talk in italian.]
 
+Cronologia della conversazione:
+{chat_history}
+
 Question: {question}
 Context: {context}
 
