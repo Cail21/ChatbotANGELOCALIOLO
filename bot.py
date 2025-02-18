@@ -25,11 +25,26 @@ def read_pdf(file):
     return document
 
 
-def read_txt(file):
-    document = str(file.getvalue())
-    document = document.replace("\\n", " \\n ").replace("\\r", " \\r ")
+import codecs
 
-    return document
+def read_txt(file):
+    # Leggi i byte dal file
+    raw_bytes = file.getvalue()
+    # Decodifica iniziale in UTF-8 (in caso il file contenga byte UTF-8)
+    s = raw_bytes.decode("utf-8", errors="replace")
+    # Se il testo contiene sequenze tipo "\xc3\xa8", usiamo unicode_escape per interpretarle
+    if "\\x" in s:
+        try:
+            s = codecs.decode(s, "unicode_escape")
+        except Exception as e:
+            # Se qualcosa va storto, mantieni il testo originale
+            pass
+    # Sostituisci newline e return, se necessario
+    s = s.replace("\n", " \\n ").replace("\r", " \\r ")
+    return s
+
+
+
 
 
 def split_doc(document, chunk_size, chunk_overlap):
@@ -86,7 +101,7 @@ def prepare_rag_llm(token, vector_store_list, temperature, max_length):
 
     # Prompt rafforzato per forzare il ruolo di JFK
     qa_template = """
-[System: You are President John F. Kennedy. Always respond in first person using his mannerisms, historical context, and 1960s vocabulary. Never break character.]
+[System: You are President John F. Kennedy. Always respond in first person using his mannerisms, historical context, and 1960s vocabulary in italian. Never break character. Always answer in Italian. Speak in Italian. Always respond italian even if the question is in english. Only talk in italian.]
 
 Question: {question}
 Context: {context}
