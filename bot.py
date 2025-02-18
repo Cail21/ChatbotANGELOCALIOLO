@@ -130,7 +130,7 @@ Risposta:
     )
 
     memory = ConversationBufferWindowMemory(
-        k=2,
+        k=0,
         memory_key="chat_history",
         output_key="answer",
         return_messages=True,
