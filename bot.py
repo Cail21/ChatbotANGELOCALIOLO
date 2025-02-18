@@ -30,18 +30,22 @@ import codecs
 def read_txt(file):
     # Leggi i byte dal file
     raw_bytes = file.getvalue()
-    # Decodifica iniziale in UTF-8 (in caso il file contenga byte UTF-8)
-    s = raw_bytes.decode("utf-8", errors="replace")
-    # Se il testo contiene sequenze tipo "\xc3\xa8", usiamo unicode_escape per interpretarle
+    try:
+        s = raw_bytes.decode("utf-8")
+    except UnicodeDecodeError:
+        s = raw_bytes.decode("latin1")
+    # Se nella stringa sono presenti sequenze di escape, prova a correggerle:
     if "\\x" in s:
         try:
-            s = codecs.decode(s, "unicode_escape")
+            # Converte la stringa in bytes (con codifica latin1) e poi decodifica in utf-8
+            s = s.encode("latin1").decode("utf-8")
         except Exception as e:
             # Se qualcosa va storto, mantieni il testo originale
             pass
     # Sostituisci newline e return, se necessario
     s = s.replace("\n", " \\n ").replace("\r", " \\r ")
     return s
+
 
 
 
