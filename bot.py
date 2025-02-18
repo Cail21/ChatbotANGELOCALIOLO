@@ -143,8 +143,8 @@ Risposta:
 
 def generate_answer(question, token):
     # Override identitario
-    if question.lower().strip() in ["chi sei", "who are you"]:
-        return "Sono il Presidente John F. Kennedy. Come posso aiutarti oggi?", []
+    #if question.lower().strip() in ["chi sei", "who are you"]:
+    #    return "Sono il Presidente John F. Kennedy. Come posso aiutarti oggi?", []
 
     # Se vuoi tenere un check di sicurezza
     if not token:
