@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import sys
 
 load_dotenv()
-os.environ["HUGGINGFACEHUB_API_TOKEN"] = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = "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"
 
 def clear_gpu_memory():
     torch.cuda.empty_cache()
