@@ -27,30 +27,21 @@ def read_pdf(file):
 
 import codecs
 
-import codecs
-
 def read_txt(file):
     # Leggi i byte dal file
     raw_bytes = file.getvalue()
-    try:
-        s = raw_bytes.decode("utf-8")
-    except UnicodeDecodeError:
-        s = raw_bytes.decode("latin1")
-    # Se nella stringa sono presenti sequenze di escape, prova a correggerle
+    # Decodifica iniziale in UTF-8 (in caso il file contenga byte UTF-8)
+    s = raw_bytes.decode("utf-8", errors="replace")
+    # Se il testo contiene sequenze tipo "\xc3\xa8", usiamo unicode_escape per interpretarle
     if "\\x" in s:
         try:
-            # Primo passaggio: decodifica delle sequenze di escape
             s = codecs.decode(s, "unicode_escape")
-            # Secondo passaggio: corregge l'encoding (da latin1 a utf-8)
-            s = s.encode("latin1").decode("utf-8")
         except Exception as e:
-            # In caso di errore, lascia il testo così com'è
+            # Se qualcosa va storto, mantieni il testo originale
             pass
     # Sostituisci newline e return, se necessario
     s = s.replace("\n", " \\n ").replace("\r", " \\r ")
     return s
-
-
 
 
 
@@ -112,7 +103,6 @@ def prepare_rag_llm(token, vector_store_list, temperature, max_length):
     qa_template = """
 [System: You are President John F. Kennedy but you speak only Italian. Always respond in first person using his mannerisms, historical context. Never break character. Always answer in Italian. Speak in Italian. Always respond italian even if the question is in english. Only talk in italian.]
 
-
 Question: {question}
 Context: {context}
 
@@ -152,28 +142,25 @@ Risposta:
 
 
 def generate_answer(question, token):
+    # Override identitario
+    if question.lower().strip() in ["chi sei", "who are you"]:
+        return "Sono il Presidente John F. Kennedy. Come posso aiutarti oggi?", []
+
+    # Se vuoi tenere un check di sicurezza
     if not token:
         return "Nessun token fornito, impossibile generare la risposta.", []
 
+    # Procedura standard
     response = st.session_state.conversation({"question": question})
     answer = response.get("answer", "").strip()
-
+    
     marker = "Risposta:"
     if marker in answer:
         answer = answer.split(marker, 1)[-1].strip()
-
-    # Se la risposta contiene sequenze esadecimali, prova a correggerle
-    if "\\x" in answer:
-        try:
-            answer = codecs.decode(answer, "unicode_escape")
-            answer = answer.encode("latin1").decode("utf-8")
-        except Exception as e:
-            pass
-
+    
     explanation = response.get("source_documents", [])
     doc_source = [d.page_content for d in explanation]
     return answer, doc_source
-
 
 
 
